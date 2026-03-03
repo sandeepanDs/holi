@@ -123,13 +123,25 @@
         }
         .color-btn:active { transform: scale(0.8); }
 
-        /* Sequential Photo Display */
+        /* Sequential Photo Display - UPDATED SIZE */
         .photo-box {
-            display: none; width: 200px; height: 250px; background: #ffe0b2;
-            border-radius: 15px; align-items: center; justify-content: center;
-            color: #d84315; font-weight: bold; font-size: 16px; cursor: pointer; 
+            display: none; 
+            width: 300px; /* Increased width */
+            height: 400px; /* Increased height */
+            background: #ffe0b2;
+            border-radius: 15px; 
+            /* Removed center alignment for text inside */
+            cursor: pointer; 
             border: 3px solid #ff9800; background-size: cover; background-position: center;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2); margin: 20px auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        /* New style for instruction text below photo */
+        .photo-text {
+            font-weight: bold;
+            color: #d84315;
+            margin-top: 15px;
             animation: fadeIn 0.5s ease-in-out;
         }
 
@@ -150,13 +162,13 @@
 <body>
 
     <div id="screen1" class="screen active">
-        <h1>Hello Madamji...</h1>
-        <p>I have something special prepared sirf apke liye dil se❤️...</p>
+        <h1>Hey Beautiful...</h1>
+        <p>I have something special prepared just for you.</p>
         <button id="start-btn" onclick="playfulStartClick(this)">Click me for surprise 💖</button>
     </div>
 
     <div id="screen2" class="screen">
-        <h1>Aap mere iss khali se dil m thoda rang bhar dijiye plssss...🥺🥺🥺!</h1>
+        <h1>Add some color to my life!</h1>
         <p>Tap the colors below to fill the heart.</p>
         
         <div id="heart-shape" class="heart"></div>
@@ -183,26 +195,25 @@
     </div>
 
     <div id="screen3" class="screen">
-        <h1>Some AI generated Colorful Memories</h1>
-        <button id="show-photos-btn" onclick="startPhotoSequence()">He he sorry bina puche AI se photo generate kiye</button>
-        <div id="main-photo" class="photo-box" onclick="handlePhotoClick()">Tap to open Photo 1</div>
+        <h1>Our Colorful Memories</h1>
+        <button id="show-photos-btn" onclick="startPhotoSequence()">Click to unfold our moments</button>
+        
+        <div id="main-photo" class="photo-box" onclick="handlePhotoClick()"></div>
+        
+        <p id="photo-instruction" class="photo-text" style="display: none;">Tap for the next one!</p>
+
         <button id="special-msg-btn" style="display: none;" onclick="playfulMessageClick(this)">I have a special message for you</button>
     </div>
 
     <div id="screen4" class="screen">
-        <div class="holi-text">Happy Holi Madam ji!</div>
+        <div class="holi-text">Happy Holi!</div>
         <div class="shayari">
-            "Rang bhi usi ka chadha h<br>
-            Jiske sath kabhi nhi kheli Holi,<br>
-            Roz ate ho sapno m chupke se,<br>
-            Khwaish h bhar doon chehra apka gulal se<br>
-	Sabar se intezar karta hun m tumhara<br>
-Jaldi pura ho yeh khwab hamara<br>
-Har sal apke sath hi manau holi ji<br>
-Happy Holi Sana ji."
-
+            "Pyaar ke rang se bharu pichkari,<br>
+            Sneha ke rang se rang do duniya saari,<br>
+            Ye rang na jaane koi jaat na boli,<br>
+            Mubarak ho aapko meri jaan, ye pyari Holi."
         </div>
-        <p>You make every day feel like a festival of colors.!!</p>
+        <p>You make every day feel like a festival of colors. I love you!</p>
     </div>
 
     <script>
@@ -267,24 +278,30 @@ Happy Holi Sana ji."
         // --- SCREEN 3: Photos ---
         let currentPhotoStep = 0;
         
-        // ADD YOUR PHOTO FILES HERE (e.g., 'photo1.jpeg')
-        const photo1 = "photo1.jpeg"; 
-        const photo2 = "photo2.jpeg";
+        // ADD YOUR PHOTO FILES HERE 
+        const photo1 = "photo1.jpg"; 
+        const photo2 = "photo2.jpg";
 
         function startPhotoSequence() {
             document.getElementById('show-photos-btn').style.display = 'none';
             let photoBox = document.getElementById('main-photo');
-            photoBox.style.display = 'flex';
+            let instructionTxt = document.getElementById('photo-instruction');
+
+            photoBox.style.display = 'block';
+            instructionTxt.style.display = 'block';
+
             photoBox.style.backgroundImage = `url('${photo1}')`;
-            photoBox.innerText = "Tap for the next one!";
+            // Text is now outside the box
             currentPhotoStep = 1;
         }
 
         function handlePhotoClick() {
             let photoBox = document.getElementById('main-photo');
+            let instructionTxt = document.getElementById('photo-instruction');
+
             if (currentPhotoStep === 1) {
                 photoBox.style.backgroundImage = `url('${photo2}')`;
-                photoBox.innerText = ""; 
+                instructionTxt.style.display = 'none'; // Hide instruction for the second photo
                 currentPhotoStep = 2;
             } 
             else if (currentPhotoStep === 2) {
@@ -328,5 +345,4 @@ Happy Holi Sana ji."
         }
     </script>
 </body>
-
 </html>
