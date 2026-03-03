@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Holi Surprise</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Base Styling & Mobile Responsiveness */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #fff9fc;
+            color: #333;
+            text-align: center;
+            overflow-x: hidden;
+            overflow-y: hidden;
+        }
+
+        /* Screen Transitions */
+        .screen {
+            display: none;
+            min-height: 100vh;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .active {
+            display: flex;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Buttons */
+        button {
+            background: #ff4081;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3);
+            transition: transform 0.2s, background 0.2s;
+            z-index: 10;
+        }
+        button:active { transform: scale(0.95); }
+        
+        .reset-btn {
+            background: #9e9e9e;
+            padding: 10px 20px;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(158, 158, 158, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 { color: #d81b60; margin-bottom: 10px; }
+        p { font-size: 18px; color: #555; }
+
+        /* Custom Popup Styling */
+        .popup-overlay {
+            display: none; 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center; justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        .popup-content {
+            background: white;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            width: 80%; max-width: 320px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .popup-content h2 { color: #d81b60; margin-top: 0; }
+        .popup-content button { margin-top: 15px; width: 100%; }
+
+        @keyframes popIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* Beating Heart */
+        .heart {
+            width: 180px; height: 180px; background: #e0e0e0; 
+            -webkit-mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat center / contain;
+            mask: url('data:image/svg+xml;utf8,<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>') no-repeat center / contain;
+            transition: background 0.5s ease; margin: 20px auto;
+            animation: heartbeat 1.2s infinite;
+        }
+
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+            60% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        .color-btns { display: flex; gap: 15px; justify-content: center; margin-top: 20px; min-height: 55px; }
+        .color-btn {
+            width: 45px; height: 45px; border-radius: 50%;
+            border: 3px solid white; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .color-btn:active { transform: scale(0.8); }
+
+        /* Sequential Photo Display */
+        .photo-box {
+            display: none; width: 200px; height: 250px; background: #ffe0b2;
+            border-radius: 15px; align-items: center; justify-content: center;
+            color: #d84315; font-weight: bold; font-size: 16px; cursor: pointer; 
+            border: 3px solid #ff9800; background-size: cover; background-position: center;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2); margin: 20px auto;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Shayari Screen */
+        .shayari {
+            font-size: 22px; color: #880e4f; font-style: italic; margin: 20px 0;
+            line-height: 1.8; padding: 20px; background: rgba(255, 192, 203, 0.3);
+            border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+        .holi-text {
+            font-size: 36px; font-weight: bold;
+            background: -webkit-linear-gradient(45deg, #ff0055, #ffeb3b, #00e676, #2979ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="screen1" class="screen active">
+        <h1>Hello Madamji...</h1>
+        <p>I have something special prepared sirf apke liye dil se❤️...</p>
+        <button id="start-btn" onclick="playfulStartClick(this)">Click me for surprise 💖</button>
+    </div>
+
+    <div id="screen2" class="screen">
+        <h1>Aap mere iss khali se dil m thoda rang bhar dijiye plssss...🥺🥺🥺!</h1>
+        <p>Tap the colors below to fill the heart.</p>
+        
+        <div id="heart-shape" class="heart"></div>
+        
+        <div class="color-btns" id="color-container">
+            <div class="color-btn" style="background: #ff1744;" onclick="addColor('#ff1744', this)"></div>
+            <div class="color-btn" style="background: #00e676;" onclick="addColor('#00e676', this)"></div>
+            <div class="color-btn" style="background: #ffea00;" onclick="addColor('#ffea00', this)"></div>
+            <div class="color-btn" style="background: #2979ff;" onclick="addColor('#2979ff', this)"></div>
+        </div>
+
+        <div class="button-group">
+            <button class="reset-btn" id="reset-btn" style="display: none;" onclick="resetColors()">Reset Colors</button>
+            <button id="next-btn-2" style="display: none;" onclick="showHeartPopup()">Let's continue</button>
+        </div>
+
+        <div id="custom-popup" class="popup-overlay">
+            <div class="popup-content">
+                <h2>Awww! 🥰</h2>
+                <p>Thank you for filling my heart with beautiful colors! I love this combination!</p>
+                <button onclick="closePopupAndContinue()">Let's go!</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="screen3" class="screen">
+        <h1>Some AI generated Colorful Memories</h1>
+        <button id="show-photos-btn" onclick="startPhotoSequence()">He he sorry bina puche AI se photo generate kiye</button>
+        <div id="main-photo" class="photo-box" onclick="handlePhotoClick()">Tap to open Photo 1</div>
+        <button id="special-msg-btn" style="display: none;" onclick="playfulMessageClick(this)">I have a special message for you</button>
+    </div>
+
+    <div id="screen4" class="screen">
+        <div class="holi-text">Happy Holi Madam ji!</div>
+        <div class="shayari">
+            "Rang bhi usi ka chadha h<br>
+            Jiske sath kabhi nhi kheli Holi,<br>
+            Roz ate ho sapno m chupke se,<br>
+            Khwaish h bhar doon chehra apka gulal se<br>
+	Sabar se intezar karta hun m tumhara<br>
+Jaldi pura ho yeh khwab hamara<br>
+Har sal apke sath hi manau holi ji<br>
+Happy Holi Sana ji."
+
+        </div>
+        <p>You make every day feel like a festival of colors.!!</p>
+    </div>
+
+    <script>
+        function nextScreen(hideId, showId) {
+            document.getElementById(hideId).classList.remove('active');
+            document.getElementById(showId).classList.add('active');
+        }
+
+        // --- SCREEN 1: Playful Start Button ---
+        let startButtonClicks = 0;
+        function playfulStartClick(btn) {
+            if (startButtonClicks === 0) {
+                btn.innerText = "Haha, too slow! Catch me! 😆";
+                let randomX = Math.floor(Math.random() * 150) - 75; 
+                let randomY = Math.floor(Math.random() * 100) - 50; 
+                btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+                btn.style.background = "#d50000"; 
+                startButtonClicks++;
+            } else {
+                nextScreen('screen1', 'screen2');
+            }
+        }
+
+        // --- SCREEN 2: Color Logic & Popup ---
+        let mixedColors = [];
+
+        function addColor(color, btnElement) {
+            if (!mixedColors.includes(color)) { mixedColors.push(color); }
+            btnElement.style.display = 'none';
+            let heart = document.getElementById('heart-shape');
+            
+            if (mixedColors.length === 1) {
+                heart.style.background = mixedColors[0];
+            } else {
+                heart.style.background = `linear-gradient(45deg, ${mixedColors.join(', ')})`;
+            }
+            
+            // Show the next and reset buttons
+            document.getElementById('next-btn-2').style.display = 'block';
+            document.getElementById('reset-btn').style.display = 'block';
+        }
+
+        // Functions for the Popup
+        function showHeartPopup() {
+            document.getElementById('custom-popup').style.display = 'flex';
+        }
+
+        function closePopupAndContinue() {
+            document.getElementById('custom-popup').style.display = 'none';
+            nextScreen('screen2', 'screen3');
+        }
+
+        function resetColors() {
+            mixedColors = [];
+            document.getElementById('heart-shape').style.background = '#e0e0e0';
+            let colorButtons = document.querySelectorAll('.color-btn');
+            colorButtons.forEach(btn => { btn.style.display = 'block'; });
+            document.getElementById('next-btn-2').style.display = 'none';
+            document.getElementById('reset-btn').style.display = 'none';
+        }
+
+        // --- SCREEN 3: Photos ---
+        let currentPhotoStep = 0;
+        
+        // ADD YOUR PHOTO FILES HERE (e.g., 'photo1.jpeg')
+        const photo1 = "photo1.jpeg"; 
+        const photo2 = "photo2.jpg";
+
+        function startPhotoSequence() {
+            document.getElementById('show-photos-btn').style.display = 'none';
+            let photoBox = document.getElementById('main-photo');
+            photoBox.style.display = 'flex';
+            photoBox.style.backgroundImage = `url('${photo1}')`;
+            photoBox.innerText = "Tap for the next one!";
+            currentPhotoStep = 1;
+        }
+
+        function handlePhotoClick() {
+            let photoBox = document.getElementById('main-photo');
+            if (currentPhotoStep === 1) {
+                photoBox.style.backgroundImage = `url('${photo2}')`;
+                photoBox.innerText = ""; 
+                currentPhotoStep = 2;
+            } 
+            else if (currentPhotoStep === 2) {
+                document.getElementById('special-msg-btn').style.display = 'block';
+            }
+        }
+
+        // --- SCREEN 3: Playful Message Button ---
+        let messageButtonClicks = 0;
+        function playfulMessageClick(btn) {
+            if (messageButtonClicks === 0) {
+                btn.innerText = "Are you really ready? Catch me! 😜";
+                let randomX = Math.floor(Math.random() * 150) - 75; 
+                let randomY = Math.floor(Math.random() * 100) - 50; 
+                btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+                btn.style.background = "#d50000"; 
+                messageButtonClicks++;
+            } else {
+                nextScreen('screen3', 'screen4');
+                fireConfetti();
+            }
+        }
+
+        // --- SCREEN 4: Confetti ---
+        function fireConfetti() {
+            var duration = 3 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) { return clearInterval(interval); }
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount,
+                    origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+                }));
+                confetti(Object.assign({}, defaults, { particleCount,
+                    origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+                }));
+            }, 250);
+        }
+    </script>
+</body>
+</html>
